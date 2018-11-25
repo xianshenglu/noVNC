@@ -6,8 +6,13 @@
     "doc": "docs",
     "test": "tests"
   },
+  "main": "dist/rfb.cjs.js",
+  "module": "dist/rfb.esm.js",
+  "browser": "dist/rfb.umd.js",
   "scripts": {
     "lint": "eslint app core po tests utils",
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
     "test": "karma start karma.conf.js",
     "prepare": "node ./utils/use_require.js --as commonjs --clean"
   },
@@ -28,6 +33,8 @@
   },
   "homepage": "https://github.com/novnc/noVNC",
   "devDependencies": {
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.1.6",
     "babel-core": "^6.22.1",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-import-redirect": "*",
@@ -46,20 +53,26 @@
     "fs-extra": "^1.0.0",
     "jsdom": "*",
     "karma": "^1.3.0",
+    "karma-commonjs": "^1.0.0",
     "karma-mocha": "^1.3.0",
     "karma-mocha-reporter": "^2.2.0",
+    "karma-rollup-preprocessor": "^6.1.0",
     "karma-sauce-launcher": "^1.0.0",
     "karma-sinon-chai": "^2.0.0",
     "mocha": "^3.1.2",
     "node-getopt": "*",
     "po2json": "*",
     "requirejs": "^2.3.2",
-    "rollup": "^0.41.4",
-    "rollup-plugin-node-resolve": "^2.0.0",
+    "rollup": "^0.67.3",
+    "rollup-plugin-babel": "^4.0.3",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^3.4.0",
     "sinon": "^4.0.0",
     "sinon-chai": "^2.8.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "pako": "^1.0.6"
+  },
   "keywords": [
     "vnc",
     "rfb",

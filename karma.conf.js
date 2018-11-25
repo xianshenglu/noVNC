@@ -1,4 +1,5 @@
 // Karma configuration
+const commonjs = require('rollup-plugin-commonjs');
 
 module.exports = (config) => {
   const customLaunchers = {};
@@ -56,17 +57,34 @@ module.exports = (config) => {
 
     // list of files / patterns to load in the browser (loaded in order)
     files: [
+      { pattern: 'node_modules/pako/**/*.js', included: false },
       { pattern: 'app/localization.js', included: false },
       { pattern: 'app/webutil.js', included: false },
       { pattern: 'core/**/*.js', included: false },
-      { pattern: 'vendor/pako/**/*.js', included: false },
-      { pattern: 'vendor/browser-es-module-loader/dist/*.js*', included: false },
       { pattern: 'tests/test.*.js', included: false },
       { pattern: 'tests/fake.*.js', included: false },
       { pattern: 'tests/assertions.js', included: false },
       'vendor/promise.js',
       'tests/karma-test-main.js',
     ],
+
+		preprocessors: {
+			'node_modules/pako/**/*.js': ['rollup']
+		},
+
+    rollupPreprocessor: {
+			plugins: [commonjs({
+        include: 'node_modules/**',
+        namedExports: {
+          'node_modules/pako/index.js': [ 'Inflate' ]
+        }
+      })],
+			output: {
+				format: 'es',
+				name: 'noVNC',
+				sourcemap: 'inline'
+			}
+		},
 
     client: {
       mocha: {

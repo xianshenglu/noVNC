@@ -10,8 +10,8 @@
  *
  */
 
+import { Inflate } from 'pako';
 import * as Log from '../util/logging.js';
-import Inflator from "../inflator.js";
 
 export default class TightDecoder {
     constructor() {
@@ -23,7 +23,7 @@ export default class TightDecoder {
 
         this._zlibs = [];
         for (let i = 0; i < 4; i++) {
-            this._zlibs[i] = new Inflator();
+            this._zlibs[i] = new Inflate();
         }
     }
 

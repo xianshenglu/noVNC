@@ -8,7 +8,6 @@
 
 # noVNC application files
 /app
-/vendor/browser-es-module-loader
 /vendor/promise.js
 /vnc.html
 /vnc_lite.html
@@ -35,3 +34,6 @@
 /docs/*.pdf
 /docs/flash_policy.txt
 /CONTRIBUTING.md
+
+# Bundles
+/dist
