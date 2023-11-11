@@ -85,6 +85,10 @@ export default class Keyboard {
 
     _handleKeyDown(e) {
         const code = this._getKeyCode(e);
+        const isCtrlVEvent = code === "KeyV" && e.ctrlKey;
+        if(isCtrlVEvent){
+            return;
+        }
         let keysym = KeyboardUtil.getKeysym(e);
 
         // Windows doesn't have a proper AltGr, but handles it using
