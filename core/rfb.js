@@ -1858,7 +1858,8 @@ export default class RFB extends EventTargetMixin {
 
         if (length >= 0) {
             //Standard msg
-            const text = this._sock.rQshiftStr(length);
+            let text = this._sock.rQshiftStr(length);
+            text = decodeUTF8(text, true)
             if (this._viewOnly) {
                 return true;
             }
@@ -2127,6 +2128,9 @@ export default class RFB extends EventTargetMixin {
 
             case 250:  // XVP
                 return this._handleXvpMsg();
+            case 252:
+            Log.Info("text");
+            return this._handleServerCutText();
 
             default:
                 this._fail("Unexpected server message (type " + msgType + ")");
