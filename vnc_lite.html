@@ -170,7 +170,90 @@
         rfb.addEventListener("disconnect", disconnectedFromServer);
         rfb.addEventListener("credentialsrequired", credentialsAreRequired);
         rfb.addEventListener("desktopname", updateDesktopName);
+        rfb.addEventListener("clipboard",e=>console.log(e,e.detail?.text));
+        console.log(rfb,'rfb')
 
+        let sock = {
+            _sQensureSpace(bytes) {
+                if (this._sQbufferSize - this._sQlen < bytes) {
+                    this.flush();
+                }
+            },
+            sQpush32(num) {
+                this._sQensureSpace(4);
+                this._sQ[this._sQlen++] = (num >> 24) & 0xff;
+                this._sQ[this._sQlen++] = (num >> 16) & 0xff;
+                this._sQ[this._sQlen++] = (num >>  8) & 0xff;
+                this._sQ[this._sQlen++] = (num >>  0) & 0xff;
+            },
+            sQpushBytes(bytes) {
+                for (let offset = 0;offset < bytes.length;) {
+                    this._sQensureSpace(1);
+
+                    let chunkSize = this._sQbufferSize - this._sQlen;
+                    if (chunkSize > bytes.length - offset) {
+                        chunkSize = bytes.length - offset;
+                    }
+
+                    this._sQ.set(bytes.subarray(offset, chunkSize), this._sQlen);
+                    this._sQlen += chunkSize;
+                    offset += chunkSize;
+                }
+            }
+        }
+        let newRfb = {
+            __clipboardPasteFrom(text) {
+                if (this._rfbConnectionState !== 'connected' || this._viewOnly) { return; }
+                    let data = this.__getClipboardData(text);
+                    rfbMessages.__clientCutText(this._sock, data);
+            },
+            __getClipboardData(text){
+                let length, i;
+                let data;
+
+                length = 0;
+                // eslint-disable-next-line no-unused-vars
+                for (let codePoint of text) {
+                    length++;
+                }
+
+                data = new Uint8Array(length);
+
+                i = 0;
+                for (let codePoint of text) {
+                    let code = codePoint.codePointAt(0);
+
+                    /* Only ISO 8859-1 is supported */
+                    if (code > 0xff) {
+                        code = 0x3f; // '?'
+                    }
+
+                    data[i++] = code;
+                }
+                return data;
+            }
+        }
+        function toUnsigned32bit(toConvert) {
+            return toConvert >>> 0;
+        }
+        let rfbMessages =  {
+            __clientCutText(sock, data, extended = false) {
+                sock.sQpush32(0xFC000200); // msg-type
+
+                let length;
+                if (extended) {
+                    length = toUnsigned32bit(-data.length);
+                } else {
+                    length = data.length;
+                }
+
+                sock.sQpush32(length);
+                sock.sQpushBytes(data);
+                sock.flush();
+            },
+        }
+        Object.assign(rfb, newRfb)
+        Object.assign(rfb._sock, sock)
         // Set parameters that can be changed on an active connection
         rfb.viewOnly = readQueryVariable('view_only', false);
         rfb.scaleViewport = readQueryVariable('scale', false);
